@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Deep Sky Craft — Professional Astrophotography Processing</title>
+
+    <meta name="description" content="Professional astrophotography processing for Seestar, DWARFLAB and smart telescopes. Your first image is free. No generative AI.">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: Arial, Helvetica, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* =========================
+           STAR FIELD
+        ========================= */
+
+        .stars,
+        .stars::before,
+        .stars::after {
+            position: fixed;
+            inset: 0;
+            content: "";
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .stars {
+            opacity: 0.55;
+            background-image:
+                radial-gradient(circle, rgba(255,255,255,.65) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,.35) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,.25) 1px, transparent 1px);
+            background-size: 137px 137px, 211px 211px, 317px 317px;
+            background-position: 20px 40px, 90px 130px, 170px 80px;
+        }
+
+        .stars::before {
+            opacity: .35;
+            background-image:
+                radial-gradient(circle, white 1px, transparent 1px);
+            background-size: 251px 251px;
+            background-position: 50px 100px;
+        }
+
+        .stars::after {
+            opacity: .2;
+            background-image:
+                radial-gradient(circle, white 1px, transparent 1px);
+            background-size: 383px 383px;
+            background-position: 170px 220px;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 70px 25px;
+        }
+
+        .hero-inner {
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .eyebrow {
+            font-size: 12px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            opacity: .55;
+            margin-bottom: 35px;
+        }
+
+        h1 {
+            font-size: clamp(48px, 8vw, 110px);
+            line-height: .92;
+            letter-spacing: -5px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .hero-subtitle {
+            margin-top: 35px;
+            font-size: 16px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: .65;
+        }
+
+        .free-badge {
+            margin: 55px auto 28px;
+            font-size: clamp(24px, 4vw, 42px);
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .free-text {
+            max-width: 650px;
+            margin: 0 auto 35px;
+            line-height: 1.7;
+            font-size: 16px;
+            opacity: .65;
+        }
+
+        /* =========================
+           BUTTON
+        ========================= */
+
+        .send-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            padding: 19px 30px;
+            border: 1px solid rgba(255,255,255,.65);
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 13px;
+            font-weight: 700;
+            transition: all .25s ease;
+            background: rgba(255,255,255,.02);
+            cursor: pointer;
+        }
+
+        .send-button:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* =========================
+           BEFORE / AFTER
+        ========================= */
+
+        .examples {
+            max-width: 1450px;
+            margin: 0 auto;
+            padding: 30px 25px 150px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 12px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            opacity: .45;
+            margin-bottom: 45px;
+        }
+
+        .example-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+        }
+
+        .example {
+            position: relative;
+            aspect-ratio: 4 / 3;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 50% 45%, rgba(255,255,255,.12), transparent 25%),
+                radial-gradient(circle at 30% 70%, rgba(255,255,255,.06), transparent 20%),
+                #070707;
+            border: 1px solid rgba(255,255,255,.10);
+        }
+
+        .example::before {
+            content: "BEFORE  →  AFTER";
+            position: absolute;
+            top: 18px;
+            left: 20px;
+            z-index: 2;
+            font-size: 10px;
+            letter-spacing: 3px;
+            opacity: .7;
+        }
+
+        .example-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: rgba(255,255,255,.25);
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* =========================
+           MESSAGE
+        ========================= */
+
+        .statement {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 100px 25px 150px;
+            text-align: center;
+        }
+
+        .statement h2 {
+            font-size: clamp(38px, 6vw, 78px);
+            line-height: 1;
+            letter-spacing: -3px;
+            text-transform: uppercase;
+        }
+
+        .statement p {
+            max-width: 700px;
+            margin: 35px auto 0;
+            line-height: 1.8;
+            font-size: 17px;
+            opacity: .6;
+        }
+
+        /* =========================
+           FEATURES
+        ========================= */
+
+        .features {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 25px 160px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            border-top: 1px solid rgba(255,255,255,.12);
+            border-bottom: 1px solid rgba(255,255,255,.12);
+        }
+
+        .feature {
+            padding: 45px 30px;
+            border-right: 1px solid rgba(255,255,255,.12);
+        }
+
+        .feature:last-child {
+            border-right: none;
+        }
+
+        .feature-number {
+            font-size: 11px;
+            letter-spacing: 3px;
+            opacity: .35;
+            margin-bottom: 25px;
+        }
+
+        .feature h3 {
+            font-size: 20px;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .feature p {
+            font-size: 14px;
+            line-height: 1.7;
+            opacity: .5;
+        }
+
+        /* =========================
+           SEND SECTION
+        ========================= */
+
+        .send-section {
+            max-width: 850px;
+            margin: 0 auto;
+            padding: 0 25px 150px;
+            text-align: center;
+        }
+
+        .send-section h2 {
+            font-size: clamp(40px, 6vw, 70px);
+            text-transform: uppercase;
+            letter-spacing: -3px;
+            margin-bottom: 25px;
+        }
+
+        .send-section > p {
+            opacity: .6;
+            line-height: 1.7;
+            margin-bottom: 40px;
+        }
+
+        .email-box {
+            display: none;
+            margin: 30px auto 0;
+            padding: 35px;
+            border: 1px solid rgba(255,255,255,.18);
+            background: rgba(255,255,255,.025);
+            animation: reveal .35s ease;
+        }
+
+        .email-box.visible {
+            display: block;
+        }
+
+        @keyframes reveal {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .email-label {
+            font-size: 10px;
+            letter-spacing: 3px;
+            opacity: .4;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .email-address {
+            font-size: clamp(20px, 4vw, 32px);
+            letter-spacing: 1px;
+            margin-bottom: 35px;
+            word-break: break-word;
+        }
+
+        .send-method {
+            border-top: 1px solid rgba(255,255,255,.1);
+            padding-top: 30px;
+            text-align: left;
+        }
+
+        .send-method h3 {
+            font-size: 13px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .send-method p {
+            font-size: 14px;
+            line-height: 1.8;
+            opacity: .55;
+        }
+
+        /* =========================
+           INSTRUCTIONS
+        ========================= */
+
+        .instructions {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 25px 150px;
+        }
+
+        .instructions h2 {
+            text-align: center;
+            font-size: clamp(32px, 5vw, 55px);
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin-bottom: 60px;
+        }
+
+        .instruction-box {
+            border-top: 1px solid rgba(255,255,255,.12);
+        }
+
+        .instruction {
+            padding: 35px 0;
+            border-bottom: 1px solid rgba(255,255,255,.12);
+        }
+
+        .instruction h3 {
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .instruction p {
+            font-size: 15px;
+            line-height: 1.8;
+            opacity: .55;
+        }
+
+        .important {
+            margin-top: 45px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,.18);
+        }
+
+        .important strong {
+            display: block;
+            margin-bottom: 15px;
+            letter-spacing: 2px;
+            font-size: 13px;
+        }
+
+        /* =========================
+           PROCESS
+        ========================= */
+
+        .process {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 25px 160px;
+        }
+
+        .process h2 {
+            text-align: center;
+            font-size: clamp(35px, 5vw, 60px);
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin-bottom: 65px;
+        }
+
+        .process-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: rgba(255,255,255,.12);
+        }
+
+        .process-step {
+            background: #000;
+            padding: 45px 30px;
+        }
+
+        .process-step span {
+            font-size: 10px;
+            letter-spacing: 3px;
+            opacity: .35;
+        }
+
+        .process-step h3 {
+            margin: 22px 0 15px;
+            font-size: 20px;
+            text-transform: uppercase;
+        }
+
+        .process-step p {
+            font-size: 14px;
+            line-height: 1.7;
+            opacity: .5;
+        }
+
+        /* =========================
+           FINAL CTA
+        ========================= */
+
+        .final {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 100px 25px;
+        }
+
+        .final h2 {
+            font-size: clamp(42px, 7vw, 90px);
+            line-height: .95;
+            letter-spacing: -4px;
+            text-transform: uppercase;
+        }
+
+        .final p {
+            margin: 30px auto 35px;
+            opacity: .55;
+            font-size: 16px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            padding: 40px 25px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,.08);
+            font-size: 10px;
+            letter-spacing: 3px;
+            opacity: .3;
+            text-transform: uppercase;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 800px) {
+
+            h1 {
+                letter-spacing: -3px;
+            }
+
+            .example-grid,
+            .feature-grid,
+            .process-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature {
+                border-right: none;
+                border-bottom: 1px solid rgba(255,255,255,.12);
+            }
+
+            .feature:last-child {
+                border-bottom: none;
+            }
+
+            .hero {
+                min-height: 90vh;
+            }
+
+            .statement,
+            .examples,
+            .features,
+            .send-section,
+            .instructions,
+            .process {
+                padding-bottom: 100px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="stars"></div>
+
+<div class="content">
+
+    <!-- =========================
+         HERO
+    ========================= -->
+
+    <section class="hero">
+
+        <div class="hero-inner">
+
+            <div class="eyebrow">
+                Deep Sky Craft
+            </div>
+
+            <h1>
+                Your Astro Data.<br>
+                Professionally Processed.
+            </h1>
+
+            <div class="hero-subtitle">
+                Seestar · DWARFLAB · Smart Telescopes
+            </div>
+
+            <div class="free-badge">
+                YOUR FIRST IMAGE IS FREE.
+            </div>
+
+            <p class="free-text">
+                Send us your original astrophotography data.
+                We'll professionally process your first image completely free of charge.
+            </p>
+
+            <button class="send-button" onclick="toggleEmail()">
+                Send Your Files
+                <span>→</span>
+            </button>
+
+            <div id="emailBox" class="email-box">
+
+                <div class="email-label">
+                    Send your files to
+                </div>
+
+                <div class="email-address">
+                    deepskycraft@gmail.com
+                </div>
+
+                <div class="send-method">
+
+                    <h3>
+                        Email
+                    </h3>
+
+                    <p>
+                        Send your original TIFF files directly to the email address above.
+                    </p>
+
+                </div>
+
+                <div class="send-method">
+
+                    <h3>
+                        Google Drive
+                    </h3>
+
+                    <p>
+                        Upload your files to Google Drive and share the folder with
+                        <strong>deepskycraft@gmail.com</strong>.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         BEFORE / AFTER
+    ========================= -->
+
+    <section class="examples">
+
+        <div class="section-title">
+            See the difference
+        </div>
+
+        <div class="example-grid">
+
+            <div class="example">
+                <div class="example-placeholder">
+                    Your Before / After Image 01
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="example-placeholder">
+                    Your Before / After Image 02
+                </div>
+            </div>
+
+            <div class="example">
+                <div class="example-placeholder">
+                    Your Before / After Image 03
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         STATEMENT
+    ========================= -->
+
+    <section class="statement">
+
+        <h2>
+            You captured the data.<br>
+            We'll do the rest.
+        </h2>
+
+        <p>
+            Your telescope has already captured the photons.
+            Our job is to bring out the detail, structure and colour
+            hidden inside your original data.
+        </p>
+
+    </section>
+
+
+    <!-- =========================
+         FEATURES
+    ========================= -->
+
+    <section class="features">
+
+        <div class="feature-grid">
+
+            <div class="feature">
+
+                <div class="feature-number">
+                    01
+                </div>
+
+                <h3>
+                    PixInsight
+                </h3>
+
+                <p>
+                    Professional astrophotography processing using
+                    a dedicated PixInsight workflow.
+                </p>
+
+            </div>
+
+
+            <div class="feature">
+
+                <div class="feature-number">
+                    02
+                </div>
+
+                <h3>
+                    Hands-On
+                </h3>
+
+                <p>
+                    Every image is carefully processed by hand.
+                    No one-click filters. No automated magic.
+                </p>
+
+            </div>
+
+
+            <div class="feature">
+
+                <div class="feature-number">
+                    03
+                </div>
+
+                <h3>
+                    No Generative AI
+                </h3>
+
+                <p>
+                    We work with your original data.
+                    No AI-generated stars, structures or artificial details.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         SEND FILES
+    ========================= -->
+
+    <section class="send-section">
+
+        <h2>
+            Send Your Files
+        </h2>
+
+        <p>
+            No complicated upload system. No account required.
+            Simply send us your original data by email or share your cloud folder.
+        </p>
+
+        <button class="send-button" onclick="toggleEmail()">
+            Send Your Files
+            <span>→</span>
+        </button>
+
+    </section>
+
+
+    <!-- =========================
+         INSTRUCTIONS
+    ========================= -->
+
+    <section class="instructions">
+
+        <h2>
+            What should you send?
+        </h2>
+
+        <div class="instruction-box">
+
+            <div class="instruction">
+
+                <h3>
+                    Option 01 — Original TIFF Files
+                </h3>
+
+                <p>
+                    Please send all original TIFF files captured for the object.
+                </p>
+
+            </div>
+
+
+            <div class="instruction">
+
+                <h3>
+                    Option 02 — Stacked TIFF
+                </h3>
+
+                <p>
+                    If your telescope software has already stacked the images,
+                    you can send the stacked TIFF file instead.
+                </p>
+
+            </div>
+
+
+            <div class="important">
+
+                <strong>
+                    IMPORTANT
+                </strong>
+
+                <p>
+                    Please send your files completely unedited.
+                    No stretching, sharpening, noise reduction,
+                    colour correction or other processing is required.
+                    We need the original data.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         PROCESS
+    ========================= -->
+
+    <section class="process">
+
+        <h2>
+            From Data To Image
+        </h2>
+
+        <div class="process-grid">
+
+            <div class="process-step">
+
+                <span>
+                    01
+                </span>
+
+                <h3>
+                    You Send
+                </h3>
+
+                <p>
+                    Your original astrophotography data.
+                </p>
+
+            </div>
+
+
+            <div class="process-step">
+
+                <span>
+                    02
+                </span>
+
+                <h3>
+                    We Process
+                </h3>
+
+                <p>
+                    Professional PixInsight workflow,
+                    carefully processed by hand.
+                </p>
+
+            </div>
+
+
+            <div class="process-step">
+
+                <span>
+                    03
+                </span>
+
+                <h3>
+                    You Receive
+                </h3>
+
+                <p>
+                    Your finished JPG and PNG image
+                    within 48 hours.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================
+         FINAL CTA
+    ========================= -->
+
+    <section class="final">
+
+        <div>
+
+            <h2>
+                Let's see what<br>
+                your data can become.
+            </h2>
+
+            <p>
+                Your first image is free.
+            </p>
+
+            <button class="send-button" onclick="toggleEmail()">
+                Send Your Files
+                <span>→</span>
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <footer>
+        Deep Sky Craft · Professional Astrophotography Processing
+    </footer>
+
+</div>
+
+
+<script>
+
+    function toggleEmail() {
+
+        const box = document.getElementById("emailBox");
+
+        box.classList.toggle("visible");
+
+        if (box.classList.contains("visible")) {
+
+            setTimeout(() => {
+                box.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+            }, 100);
+
+        }
+
+    }
+
+</script>
+
+</body>
+</html>
