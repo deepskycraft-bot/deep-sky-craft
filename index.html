@@ -113,12 +113,13 @@
             opacity: .65;
         }
 
-        .free-badge {
-            margin: 55px auto 28px;
-            font-size: clamp(24px, 4vw, 42px);
-            font-weight: 700;
-            letter-spacing: -1px;
-        }
+.free-badge {
+    margin: 55px auto 28px;
+    font-size: clamp(26px, 4vw, 44px);
+    font-weight: 700;
+    letter-spacing: -1.5px;
+    text-transform: uppercase;
+}
 
         .free-text {
             max-width: 650px;
@@ -132,35 +133,36 @@
            BUTTON
         ========================= */
 
-        .send-button {
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            padding: 19px 30px;
-            border: 1px solid rgba(255,255,255,.65);
-            color: #fff;
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 13px;
-            font-weight: 700;
-            transition: all .25s ease;
-            background: rgba(255,255,255,.02);
-            cursor: pointer;
-        }
+.send-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 34px;
+    border: 1px solid rgba(255,255,255,.75);
+    color: #fff;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 2.5px;
+    font-size: 13px;
+    font-weight: 700;
+    transition: all .25s ease;
+    background: rgba(255,255,255,.04);
+    cursor: pointer;
+}
 
-        .send-button:hover {
-            background: #fff;
-            color: #000;
-            border-color: #fff;
-        }
+.send-button:hover {
+    background: #fff;
+    color: #000;
+    border-color: #fff;
+    transform: translateY(-2px);
+}
 
         /* =========================
            BEFORE / AFTER
         ========================= */
 
         .examples {
-            max-width: 1450px;
+            max-width: 1700px;
             margin: 0 auto;
             padding: 30px 25px 150px;
         }
